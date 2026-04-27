@@ -10,11 +10,29 @@ connectDB()
 
 const app = express()
 
-app.use(cors())
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://pandugoud.github.io'
+]
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}))
+
 app.use(express.json())
 
 app.get('/', (req, res) => {
   res.json({ message: 'Task Manager Pro V2 API running' })
+})
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true })
 })
 
 app.use('/api/auth', authRoutes)
@@ -22,6 +40,6 @@ app.use('/api/tasks', taskRoutes)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`Server running on http://127.0.0.1:${PORT}`)
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
